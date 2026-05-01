@@ -40,7 +40,7 @@ button:disabled {
 }
 
 .app__inner {
-  width: min(100%, 1080px);
+  width: min(100%, 1180px);
   margin: 0 auto;
   padding: 32px 20px 56px;
 }
@@ -189,12 +189,26 @@ li {
   background: #aa2a16;
 }
 
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 34%) minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+}
+
 .scenario-list,
 .scenario-detail,
 .empty-detail,
-.general-comments {
+.check-answers {
   padding: 30px 0;
   border-bottom: 1px solid #b1b4b6;
+}
+
+.scenario-list {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  background: #f3f2f1;
 }
 
 .scenario-list__items {
@@ -214,8 +228,12 @@ li {
   text-align: left;
 }
 
-.scenario-card:hover {
+.scenario-card:hover:not(:disabled) {
   border-color: #0b0c0c;
+}
+
+.scenario-card:disabled {
+  opacity: 0.58;
 }
 
 .scenario-card--selected {
@@ -278,7 +296,7 @@ li {
 }
 
 .form-group legend,
-.form-group label {
+.form-group label:not(.radio) {
   display: block;
   margin-bottom: 10px;
   font-size: 1.15rem;
@@ -302,19 +320,27 @@ li {
 }
 
 .radio {
-  display: flex;
+  display: inline-flex;
   width: fit-content;
   max-width: 100%;
   align-items: center;
   gap: 12px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .radio input {
+  flex: 0 0 auto;
   width: 32px;
   height: 32px;
   margin: 0;
   accent-color: #0b0c0c;
+}
+
+.radio span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
 }
 
 textarea,
@@ -342,8 +368,24 @@ textarea {
   color: #2f373b;
 }
 
-.general-comments textarea {
-  display: block;
+.answer-list {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.answer-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 18px;
+  border-left: 6px solid #00703c;
+  background: #ffffff;
+}
+
+.answer-card p:last-child {
+  margin-bottom: 0;
 }
 
 .modal-backdrop {
@@ -375,7 +417,6 @@ textarea {
   position: absolute;
   top: 18px;
   right: 18px;
-  padding: 4px 8px;
   border: 0;
   background: transparent;
   color: #1d70b8;
@@ -383,11 +424,39 @@ textarea {
   text-decoration: underline;
 }
 
+.modal__close--text {
+  padding: 4px 8px;
+}
+
+.modal__close--icon {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #0b0c0c;
+  font-size: 1rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
 .modal__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 22px;
+}
+
+@media (max-width: 860px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .scenario-list {
+    position: static;
+  }
 }
 
 @media (max-width: 720px) {
@@ -414,15 +483,19 @@ textarea {
     padding: 16px 14px;
   }
 
+  .answer-card {
+    grid-template-columns: 1fr;
+  }
+
   .modal {
     padding: 22px;
   }
 
   .modal h2 {
-    padding-right: 0;
+    padding-right: 44px;
   }
 
-  .modal__close {
+  .modal__close--text {
     position: static;
     display: inline-block;
     margin-bottom: 12px;

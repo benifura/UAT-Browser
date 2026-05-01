@@ -15,10 +15,17 @@ const RESULT_STATUSES: ScenarioResultStatus[] = ['Pass', 'Fail', 'Partially Pass
 
 const emptyProgress: SavedProgress = {
   currentScenarioIndex: null,
-  generalComments: '',
   results: {},
   lastSaved: null
 };
+
+function normaliseScenarioProgress(result?: Partial<ScenarioProgress>): ScenarioProgress {
+  return {
+    status: result?.status ?? '',
+    comments: result?.comments ?? '',
+    otherComments: result?.otherComments ?? ''
+  };
+}
 
 function getInitialProgress(): SavedProgress {
   const storedProgress = window.localStorage.getItem(STORAGE_KEY);
@@ -28,13 +35,18 @@ function getInitialProgress(): SavedProgress {
   }
 
   try {
-    const parsedProgress = JSON.parse(storedProgress) as SavedProgress;
+    const parsedProgress = JSON.parse(storedProgress) as SavedProgress & { generalComments?: string };
+    const results = Object.fromEntries(
+      Object.entries(parsedProgress.results ?? {}).map(([scenarioId, result]) => [
+        scenarioId,
+        normaliseScenarioProgress(result)
+      ])
+    );
 
     return {
       currentScenarioIndex:
         typeof parsedProgress.currentScenarioIndex === 'number' ? parsedProgress.currentScenarioIndex : null,
-      generalComments: parsedProgress.generalComments ?? '',
-      results: parsedProgress.results ?? {},
+      results,
       lastSaved: parsedProgress.lastSaved ?? null
     };
   } catch {
@@ -43,7 +55,7 @@ function getInitialProgress(): SavedProgress {
 }
 
 function getScenarioProgress(progress: SavedProgress, scenarioId: string): ScenarioProgress {
-  return progress.results[scenarioId] ?? { status: '', comments: '' };
+  return normaliseScenarioProgress(progress.results[scenarioId]);
 }
 
 function hasRequiredComment(result: ScenarioProgress): boolean {
@@ -51,7 +63,7 @@ function hasRequiredComment(result: ScenarioProgress): boolean {
 }
 
 function getNavigationStatus(result: ScenarioProgress): NavigationStatus {
-  if (!result.status && !hasRequiredComment(result)) {
+  if (!result.status && !hasRequiredComment(result) && !result.otherComments.trim()) {
     return 'Not started';
   }
 
@@ -108,12 +120,15 @@ function App() {
   const [pendingScenarioIndex, setPendingScenarioIndex] = useState<number | null>(null);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [testerName, setTesterName] = useState('');
   const [showTesterNameError, setShowTesterNameError] = useState(false);
   const [showMovePrompt, setShowMovePrompt] = useState(false);
   const clearModalCancelRef = useRef<HTMLButtonElement>(null);
   const exportModalInputRef = useRef<HTMLInputElement>(null);
   const moveModalStayRef = useRef<HTMLButtonElement>(null);
+  const scenarioDetailRef = useRef<HTMLElement>(null);
+  const scenarioHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const selectedScenarioIndex = progress.currentScenarioIndex;
   const selectedScenario =
@@ -145,6 +160,17 @@ function App() {
     }
   }, [showMovePrompt]);
 
+  useEffect(() => {
+    if (selectedScenarioIndex === null || isReviewOpen) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      scenarioDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scenarioHeadingRef.current?.focus({ preventScroll: true });
+    }, 0);
+  }, [selectedScenarioIndex, isReviewOpen]);
+
   function updateProgress(updater: (currentProgress: SavedProgress) => SavedProgress) {
     setProgress((currentProgress) => {
       const nextProgress = {
@@ -175,15 +201,24 @@ function App() {
   }
 
   function shouldPromptBeforeLeaving(): boolean {
-    if (!selectedScenario || selectedResult?.status) {
-      return false;
+    return Boolean(selectedScenario && !selectedResult?.status);
+  }
+
+  function canSelectScenario(index: number): boolean {
+    if (selectedScenarioIndex === null) {
+      return index === 0;
     }
 
-    return true;
+    return index <= selectedScenarioIndex || index === selectedScenarioIndex + 1;
   }
 
   function requestScenarioChange(nextIndex: number) {
-    if (nextIndex < 0 || nextIndex >= scenarioPack.scenarios.length || nextIndex === selectedScenarioIndex) {
+    if (
+      nextIndex < 0 ||
+      nextIndex >= scenarioPack.scenarios.length ||
+      nextIndex === selectedScenarioIndex ||
+      !canSelectScenario(nextIndex)
+    ) {
       return;
     }
 
@@ -197,6 +232,7 @@ function App() {
   }
 
   function selectScenario(nextIndex: number) {
+    setIsReviewOpen(false);
     updateProgress((currentProgress) => ({
       ...currentProgress,
       currentScenarioIndex: nextIndex
@@ -220,7 +256,17 @@ function App() {
   function clearAllProgress() {
     window.localStorage.removeItem(STORAGE_KEY);
     setProgress(emptyProgress);
+    setIsReviewOpen(false);
     setIsClearModalOpen(false);
+  }
+
+  function openReviewPage() {
+    if (!allScenariosComplete) {
+      return;
+    }
+
+    setIsReviewOpen(true);
+    window.setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
   }
 
   async function exportPdf() {
@@ -258,35 +304,32 @@ function App() {
 
     doc.setFont('helvetica', 'normal');
     yPosition += 4;
-    addWrappedText(`Tester: ${testerName.trim()}`);
-    addWrappedText(`Exported: ${formatExportDate(new Date())}`);
+    addWrappedText('Tester: ' + testerName.trim());
+    addWrappedText('Exported: ' + formatExportDate(new Date()));
     yPosition += 4;
 
     scenarioPack.scenarios.forEach((scenario) => {
       const result = getScenarioProgress(progress, scenario.id);
       addPageIfNeeded(22);
       doc.setFont('helvetica', 'bold');
-      addWrappedText(`${scenario.id}: ${scenario.title}`, 12, 6);
+      addWrappedText(scenario.id + ': ' + scenario.title, 12, 6);
       doc.setFont('helvetica', 'normal');
-      addWrappedText(`Status: ${result.status}`);
+      addWrappedText('Status: ' + result.status);
 
       if (result.comments.trim()) {
-        addWrappedText(`Comments: ${result.comments.trim()}`);
+        addWrappedText('Comments: ' + result.comments.trim());
+      }
+
+      if (result.otherComments.trim()) {
+        addWrappedText('Any other comments: ' + result.otherComments.trim());
       }
 
       yPosition += 4;
     });
 
-    if (progress.generalComments.trim()) {
-      addPageIfNeeded(20);
-      doc.setFont('helvetica', 'bold');
-      addWrappedText('Any other comments:', 12, 6);
-      doc.setFont('helvetica', 'normal');
-      addWrappedText(progress.generalComments.trim());
-    }
-
-    doc.save(`${scenarioPack.projectName.replace(/\s+/g, '-').toLowerCase()}-uat-results.pdf`);
+    doc.save(scenarioPack.projectName.replace(/\s+/g, '-').toLowerCase() + '-uat-results.pdf');
     setIsExportModalOpen(false);
+    setIsReviewOpen(false);
     setTesterName('');
     setShowTesterNameError(false);
   }
@@ -298,7 +341,7 @@ function App() {
           <span className="service-name">UAT results capture</span>
           <h1>{scenarioPack.projectName}</h1>
           <p>
-            Work through each scenario, record the result, and export a PDF when every scenario is complete.
+            Work through each scenario in order, record the result, and export a PDF when every scenario is complete.
             Your progress is saved automatically in this browser.
           </p>
         </header>
@@ -309,7 +352,7 @@ function App() {
               Progress: {completedCount} of {scenarioPack.scenarios.length} scenarios completed
             </p>
             <div className="progress-bar" aria-hidden="true">
-              <span style={{ width: `${progressPercent}%` }} />
+              <span style={{ width: progressPercent + '%' }} />
             </div>
           </div>
           <div className="save-status" aria-live="polite">
@@ -319,177 +362,189 @@ function App() {
             <button type="button" className="button button--secondary" onClick={() => setIsClearModalOpen(true)}>
               Clear progress
             </button>
-            <button
-              type="button"
-              className="button"
-              disabled={!allScenariosComplete}
-              onClick={() => setIsExportModalOpen(true)}
-            >
+            <button type="button" className="button" disabled={!allScenariosComplete} onClick={openReviewPage}>
               Export PDF
             </button>
           </div>
         </section>
 
-        <section className="scenario-list" aria-labelledby="scenario-list-heading">
-          <h2 id="scenario-list-heading">Scenarios</h2>
-          <div className="scenario-list__items">
-            {scenarioPack.scenarios.map((scenario, index) => {
-              const navigationStatus = getNavigationStatus(getScenarioProgress(progress, scenario.id));
-              const isSelected = selectedScenarioIndex === index;
-
-              return (
-                <button
-                  type="button"
-                  key={scenario.id}
-                  className={`scenario-card scenario-card--${navigationStatus
-                    .toLowerCase()
-                    .replace(/\s+/g, '-')} ${isSelected ? 'scenario-card--selected' : ''}`}
-                  onClick={() => requestScenarioChange(index)}
-                  aria-current={isSelected ? 'true' : undefined}
-                >
-                  <span className="scenario-card__title">
-                    {scenario.id} - {scenario.title}
-                  </span>
-                  <span className="scenario-card__summary">{scenario.summary}</span>
-                  <span className="scenario-card__status">Status: {navigationStatus}</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {selectedScenario && selectedResult ? (
-          <section className="scenario-detail" aria-labelledby="scenario-detail-heading">
-            <p className="scenario-count">
-              Scenario {selectedScenarioIndex! + 1} of {scenarioPack.scenarios.length}
-            </p>
-            <h2 id="scenario-detail-heading">
-              {selectedScenario.id} - {selectedScenario.title}
-            </h2>
-
-            <div className="detail-block">
-              <h3>Business Goal</h3>
-              <p>{selectedScenario.businessGoal}</p>
-            </div>
-
-            <div className="detail-block">
-              <h3>Pre-Condition</h3>
-              <p>{selectedScenario.preCondition}</p>
-            </div>
-
-            <div className="detail-block">
-              <h3>Scenario</h3>
-              <p>
-                <strong>Given</strong> {selectedScenario.scenario.given}
-              </p>
-              <p>
-                <strong>When</strong> {selectedScenario.scenario.when}
-              </p>
-              {selectedScenario.scenario.and?.map((statement) => (
-                <p key={statement}>
-                  <strong>And</strong> {statement}
-                </p>
-              ))}
-            </div>
-
-            <div className="detail-block">
-              <h3>Then / Expected Results</h3>
-              <ul>
-                {selectedScenario.scenario.then.map((expectedResult) => (
-                  <li key={expectedResult}>{expectedResult}</li>
-                ))}
-              </ul>
-            </div>
-
-            <fieldset className="form-group">
-              <legend>Result</legend>
-              <div className="radio-group">
-                {RESULT_STATUSES.map((status) => (
-                  <label className="radio" key={status}>
-                    <input
-                      type="radio"
-                      name={`result-${selectedScenario.id}`}
-                      value={status}
-                      checked={selectedResult.status === status}
-                      onChange={() => updateScenarioResult(selectedScenario.id, { status })}
-                    />
-                    <span>{status}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <div className={`form-group ${getCommentError(selectedResult) ? 'form-group--error' : ''}`}>
-              <label htmlFor={`comments-${selectedScenario.id}`}>Comments</label>
-              {getCommentError(selectedResult) ? (
-                <p className="error-message" id={`comments-error-${selectedScenario.id}`}>
-                  {getCommentError(selectedResult)}
-                </p>
-              ) : null}
-              <textarea
-                id={`comments-${selectedScenario.id}`}
-                rows={5}
-                value={selectedResult.comments}
-                aria-describedby={
-                  getCommentError(selectedResult) ? `comments-error-${selectedScenario.id}` : undefined
-                }
-                onChange={(event) => updateScenarioResult(selectedScenario.id, { comments: event.target.value })}
-              />
-            </div>
-
-            <div className="scenario-actions">
-              <button
-                type="button"
-                className="button button--secondary"
-                disabled={selectedScenarioIndex === 0}
-                onClick={() => requestScenarioChange(selectedScenarioIndex! - 1)}
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                className="button button--secondary"
-                disabled={selectedScenarioIndex === scenarioPack.scenarios.length - 1}
-                onClick={() => requestScenarioChange(selectedScenarioIndex! + 1)}
-              >
-                Next
-              </button>
-            </div>
-          </section>
-        ) : (
-          <section className="empty-detail" aria-label="Select a scenario">
-            <p>Select a scenario to view the details and record the result.</p>
-          </section>
-        )}
-
-        <section className="general-comments" aria-labelledby="general-comments-heading">
-          <h2 id="general-comments-heading">Any other comments</h2>
-          <textarea
-            id="general-comments"
-            rows={5}
-            value={progress.generalComments}
-            onChange={(event) =>
-              updateProgress((currentProgress) => ({
-                ...currentProgress,
-                generalComments: event.target.value
-              }))
-            }
+        {isReviewOpen ? (
+          <CheckAnswersPage
+            progress={progress}
+            onBack={() => setIsReviewOpen(false)}
+            onChangeAnswer={(scenarioIndex) => selectScenario(scenarioIndex)}
+            onContinue={() => setIsExportModalOpen(true)}
           />
-        </section>
+        ) : (
+          <div className="workspace-grid">
+            <section className="scenario-list" aria-labelledby="scenario-list-heading">
+              <h2 id="scenario-list-heading">Scenarios</h2>
+              <div className="scenario-list__items">
+                {scenarioPack.scenarios.map((scenario, index) => {
+                  const navigationStatus = getNavigationStatus(getScenarioProgress(progress, scenario.id));
+                  const isSelected = selectedScenarioIndex === index;
+                  const isAvailable = canSelectScenario(index);
+                  const cardClassName =
+                    'scenario-card scenario-card--' +
+                    navigationStatus.toLowerCase().replace(/\s+/g, '-') +
+                    (isSelected ? ' scenario-card--selected' : '');
+
+                  return (
+                    <button
+                      type="button"
+                      key={scenario.id}
+                      className={cardClassName}
+                      onClick={() => requestScenarioChange(index)}
+                      aria-current={isSelected ? 'true' : undefined}
+                      disabled={!isAvailable}
+                    >
+                      <span className="scenario-card__title">
+                        {scenario.id} - {scenario.title}
+                      </span>
+                      <span className="scenario-card__summary">{scenario.summary}</span>
+                      <span className="scenario-card__status">Status: {navigationStatus}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {selectedScenario && selectedResult ? (
+              <section className="scenario-detail" aria-labelledby="scenario-detail-heading" ref={scenarioDetailRef}>
+                <p className="scenario-count">
+                  Scenario {selectedScenarioIndex! + 1} of {scenarioPack.scenarios.length}
+                </p>
+                <h2 id="scenario-detail-heading" ref={scenarioHeadingRef} tabIndex={-1}>
+                  {selectedScenario.id} - {selectedScenario.title}
+                </h2>
+
+                <div className="detail-block">
+                  <h3>Business Goal</h3>
+                  <p>{selectedScenario.businessGoal}</p>
+                </div>
+
+                <div className="detail-block">
+                  <h3>Pre-Condition</h3>
+                  <p>{selectedScenario.preCondition}</p>
+                </div>
+
+                <div className="detail-block">
+                  <h3>Scenario</h3>
+                  <p>
+                    <strong>Given</strong> {selectedScenario.scenario.given}
+                  </p>
+                  <p>
+                    <strong>When</strong> {selectedScenario.scenario.when}
+                  </p>
+                  {selectedScenario.scenario.and?.map((statement) => (
+                    <p key={statement}>
+                      <strong>And</strong> {statement}
+                    </p>
+                  ))}
+                </div>
+
+                <div className="detail-block">
+                  <h3>Then / Expected Results</h3>
+                  <ul>
+                    {selectedScenario.scenario.then.map((expectedResult) => (
+                      <li key={expectedResult}>{expectedResult}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <fieldset className="form-group">
+                  <legend>Result</legend>
+                  <div className="radio-group">
+                    {RESULT_STATUSES.map((status) => (
+                      <label className="radio" key={status}>
+                        <input
+                          type="radio"
+                          name={'result-' + selectedScenario.id}
+                          value={status}
+                          checked={selectedResult.status === status}
+                          onChange={() => updateScenarioResult(selectedScenario.id, { status })}
+                        />
+                        <span>{status}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <div className={'form-group ' + (getCommentError(selectedResult) ? 'form-group--error' : '')}>
+                  <label htmlFor={'comments-' + selectedScenario.id}>Comments</label>
+                  {getCommentError(selectedResult) ? (
+                    <p className="error-message" id={'comments-error-' + selectedScenario.id}>
+                      {getCommentError(selectedResult)}
+                    </p>
+                  ) : null}
+                  <textarea
+                    id={'comments-' + selectedScenario.id}
+                    rows={5}
+                    value={selectedResult.comments}
+                    aria-describedby={
+                      getCommentError(selectedResult) ? 'comments-error-' + selectedScenario.id : undefined
+                    }
+                    onChange={(event) => updateScenarioResult(selectedScenario.id, { comments: event.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={'other-comments-' + selectedScenario.id}>Any other comments</label>
+                  <textarea
+                    id={'other-comments-' + selectedScenario.id}
+                    rows={4}
+                    value={selectedResult.otherComments}
+                    onChange={(event) =>
+                      updateScenarioResult(selectedScenario.id, { otherComments: event.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="scenario-actions">
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    disabled={selectedScenarioIndex === 0}
+                    onClick={() => requestScenarioChange(selectedScenarioIndex! - 1)}
+                  >
+                    Previous
+                  </button>
+                  {selectedScenarioIndex === scenarioPack.scenarios.length - 1 ? (
+                    <button type="button" className="button" disabled={!allScenariosComplete} onClick={openReviewPage}>
+                      Export PDF
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button button--secondary"
+                      onClick={() => requestScenarioChange(selectedScenarioIndex! + 1)}
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
+              </section>
+            ) : (
+              <section className="empty-detail" aria-label="Select a scenario">
+                <p>Select the first scenario to view the details and record the result.</p>
+              </section>
+            )}
+          </div>
+        )}
       </div>
 
       {showMovePrompt ? (
-        <Modal title="Move away from this scenario" onClose={stayOnScenario}>
-          <p>
-            You have not marked this scenario as Pass, Fail, or Partially Passed. Are you sure you want to move away
-            from this scenario?
-          </p>
+        <Modal title="Move to the Next Scenario" onClose={stayOnScenario} closeStyle="icon">
+          <p>You have not marked provided a result for this scenario. Are you sure you want to proceed to another scenario?</p>
           <div className="modal__actions">
             <button type="button" className="button button--secondary" ref={moveModalStayRef} onClick={stayOnScenario}>
-              Stay on this scenario
+              Stay
             </button>
             <button type="button" className="button" onClick={confirmMoveAway}>
-              Move away
+              Proceed
+            </button>
+            <button type="button" className="button button--secondary" onClick={stayOnScenario}>
+              Close
             </button>
           </div>
         </Modal>
@@ -522,7 +577,7 @@ function App() {
             setShowTesterNameError(false);
           }}
         >
-          <div className={`form-group ${showTesterNameError ? 'form-group--error' : ''}`}>
+          <div className={'form-group ' + (showTesterNameError ? 'form-group--error' : '')}>
             <label htmlFor="tester-name">Tester name</label>
             {showTesterNameError ? (
               <p className="error-message" id="tester-name-error">
@@ -562,18 +617,77 @@ function App() {
   );
 }
 
+interface CheckAnswersPageProps {
+  progress: SavedProgress;
+  onBack: () => void;
+  onChangeAnswer: (scenarioIndex: number) => void;
+  onContinue: () => void;
+}
+
+function CheckAnswersPage({ progress, onBack, onChangeAnswer, onContinue }: CheckAnswersPageProps) {
+  return (
+    <section className="check-answers" aria-labelledby="check-answers-heading">
+      <p className="scenario-count">Export PDF</p>
+      <h2 id="check-answers-heading">Check your answers</h2>
+      <p>Review the recorded results before creating the PDF.</p>
+
+      <div className="answer-list">
+        {scenarioPack.scenarios.map((scenario, index) => {
+          const result = getScenarioProgress(progress, scenario.id);
+
+          return (
+            <article className="answer-card" key={scenario.id}>
+              <div>
+                <h3>
+                  {scenario.id} - {scenario.title}
+                </h3>
+                <p>
+                  <strong>Status:</strong> {result.status}
+                </p>
+                {result.comments.trim() ? (
+                  <p>
+                    <strong>Comments:</strong> {result.comments.trim()}
+                  </p>
+                ) : null}
+                {result.otherComments.trim() ? (
+                  <p>
+                    <strong>Any other comments:</strong> {result.otherComments.trim()}
+                  </p>
+                ) : null}
+              </div>
+              <button type="button" className="button button--secondary" onClick={() => onChangeAnswer(index)}>
+                Change
+              </button>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="scenario-actions">
+        <button type="button" className="button button--secondary" onClick={onBack}>
+          Back
+        </button>
+        <button type="button" className="button" onClick={onContinue}>
+          Continue to export
+        </button>
+      </div>
+    </section>
+  );
+}
+
 interface ModalProps {
   children: React.ReactNode;
+  closeStyle?: 'text' | 'icon';
   onClose: () => void;
   title: string;
 }
 
-function Modal({ children, onClose, title }: ModalProps) {
+function Modal({ children, closeStyle = 'text', onClose, title }: ModalProps) {
   return (
     <div className="modal-backdrop" role="presentation">
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <button type="button" className="modal__close" aria-label="Close" onClick={onClose}>
-          Close
+        <button type="button" className={'modal__close modal__close--' + closeStyle} aria-label="Close" onClick={onClose}>
+          {closeStyle === 'icon' ? 'x' : 'Close'}
         </button>
         <h2 id="modal-title">{title}</h2>
         {children}

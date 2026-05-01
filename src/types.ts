@@ -24,11 +24,11 @@ export interface ScenarioPack {
 export interface ScenarioProgress {
   status: ScenarioResultStatus | '';
   comments: string;
+  otherComments: string;
 }
 
 export interface SavedProgress {
   currentScenarioIndex: number | null;
-  generalComments: string;
   results: Record<string, ScenarioProgress>;
   lastSaved: string | null;
 }
