@@ -117,16 +117,13 @@ function getCommentError(result: ScenarioProgress): string {
 
 function App() {
   const [progress, setProgress] = useState<SavedProgress>(getInitialProgress);
-  const [pendingScenarioIndex, setPendingScenarioIndex] = useState<number | null>(null);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [testerName, setTesterName] = useState('');
   const [showTesterNameError, setShowTesterNameError] = useState(false);
-  const [showMovePrompt, setShowMovePrompt] = useState(false);
   const clearModalCancelRef = useRef<HTMLButtonElement>(null);
   const exportModalInputRef = useRef<HTMLInputElement>(null);
-  const moveModalStayRef = useRef<HTMLButtonElement>(null);
   const scenarioDetailRef = useRef<HTMLElement>(null);
   const scenarioHeadingRef = useRef<HTMLHeadingElement>(null);
 
@@ -154,11 +151,6 @@ function App() {
     }
   }, [isExportModalOpen]);
 
-  useEffect(() => {
-    if (showMovePrompt) {
-      moveModalStayRef.current?.focus();
-    }
-  }, [showMovePrompt]);
 
   useEffect(() => {
     if (selectedScenarioIndex === null || isReviewOpen) {
@@ -200,8 +192,16 @@ function App() {
     });
   }
 
-  function shouldPromptBeforeLeaving(): boolean {
-    return Boolean(selectedScenario && !selectedResult?.status);
+  function isScenarioResultComplete(result: ScenarioProgress | null): boolean {
+    if (!result?.status) {
+      return false;
+    }
+
+    if (result.status === 'Pass') {
+      return true;
+    }
+
+    return hasRequiredComment(result);
   }
 
   function canSelectScenario(index: number): boolean {
@@ -209,7 +209,11 @@ function App() {
       return index === 0;
     }
 
-    return index <= selectedScenarioIndex || index === selectedScenarioIndex + 1;
+    if (index <= selectedScenarioIndex) {
+      return true;
+    }
+
+    return index === selectedScenarioIndex + 1 && isScenarioResultComplete(selectedResult);
   }
 
   function requestScenarioChange(nextIndex: number) {
@@ -219,12 +223,6 @@ function App() {
       nextIndex === selectedScenarioIndex ||
       !canSelectScenario(nextIndex)
     ) {
-      return;
-    }
-
-    if (shouldPromptBeforeLeaving()) {
-      setPendingScenarioIndex(nextIndex);
-      setShowMovePrompt(true);
       return;
     }
 
@@ -239,19 +237,6 @@ function App() {
     }));
   }
 
-  function confirmMoveAway() {
-    if (pendingScenarioIndex !== null) {
-      selectScenario(pendingScenarioIndex);
-    }
-
-    setPendingScenarioIndex(null);
-    setShowMovePrompt(false);
-  }
-
-  function stayOnScenario() {
-    setPendingScenarioIndex(null);
-    setShowMovePrompt(false);
-  }
 
   function clearAllProgress() {
     window.localStorage.removeItem(STORAGE_KEY);
@@ -517,6 +502,7 @@ function App() {
                     <button
                       type="button"
                       className="button button--secondary"
+                      disabled={!isScenarioResultComplete(selectedResult)}
                       onClick={() => requestScenarioChange(selectedScenarioIndex! + 1)}
                     >
                       Next
@@ -533,22 +519,6 @@ function App() {
         )}
       </div>
 
-      {showMovePrompt ? (
-        <Modal title="Move to the Next Scenario" onClose={stayOnScenario} closeStyle="icon">
-          <p>You have not marked provided a result for this scenario. Are you sure you want to proceed to another scenario?</p>
-          <div className="modal__actions">
-            <button type="button" className="button button--secondary" ref={moveModalStayRef} onClick={stayOnScenario}>
-              Stay
-            </button>
-            <button type="button" className="button" onClick={confirmMoveAway}>
-              Proceed
-            </button>
-            <button type="button" className="button button--secondary" onClick={stayOnScenario}>
-              Close
-            </button>
-          </div>
-        </Modal>
-      ) : null}
 
       {isClearModalOpen ? (
         <Modal title="Clear progress" onClose={() => setIsClearModalOpen(false)}>
@@ -677,17 +647,16 @@ function CheckAnswersPage({ progress, onBack, onChangeAnswer, onContinue }: Chec
 
 interface ModalProps {
   children: React.ReactNode;
-  closeStyle?: 'text' | 'icon';
   onClose: () => void;
   title: string;
 }
 
-function Modal({ children, closeStyle = 'text', onClose, title }: ModalProps) {
+function Modal({ children, onClose, title }: ModalProps) {
   return (
     <div className="modal-backdrop" role="presentation">
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <button type="button" className={'modal__close modal__close--' + closeStyle} aria-label="Close" onClick={onClose}>
-          {closeStyle === 'icon' ? 'x' : 'Close'}
+        <button type="button" className="modal__close modal__close--text" aria-label="Close" onClick={onClose}>
+          Close
         </button>
         <h2 id="modal-title">{title}</h2>
         {children}
