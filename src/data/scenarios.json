@@ -1,0 +1,436 @@
+{
+  "projectName": "Application Register Modernisation",
+  "scenarios": [
+    {
+      "id": "UAT 1",
+      "title": "Create a New Application List",
+      "summary": "Confirm a user can create a new application list with the expected mandatory information.",
+      "businessGoal": "As a court user, I need to create a new application list so that applications can be managed for a specific sitting.",
+      "preCondition": "User is logged in with permission to create lists.",
+      "scenario": {
+        "given": "I am on the Applications List screen",
+        "when": "I create a new list and complete all mandatory fields",
+        "and": [
+          "I select either Court or CJA with Other Location in line with business rules",
+          "I save the list"
+        ],
+        "then": [
+          "The list is saved successfully",
+          "The default status is \"Open\"",
+          "The list appears in search results",
+          "An audit record is created"
+        ]
+      }
+    },
+    {
+      "id": "UAT 2",
+      "title": "Create a New Application List Entry with a Person Applicant",
+      "summary": "Confirm a user can create a new Application List Entry with a person applicant and save the required applicant, application code, wording, civil fee and notes information.",
+      "businessGoal": "As a court user, I need to create a new Application List Entry with a person applicant so that individual applicant details are recorded correctly.",
+      "preCondition": "An Open Application List exists and the user has permission to create Application List Entries.",
+      "scenario": {
+        "given": "I am creating a new Application List Entry",
+        "when": "I select Person in the Applicant accordion",
+        "and": [
+          "I populate the mandatory fields in the Applicant section: First Forename, Surname and Address Line 1",
+          "I populate the Application Code and complete the mandatory Application Codes, Wording and Civil Fee details, using an Application Code that requires fee details where possible",
+          "I populate the Notes field",
+          "I save the application"
+        ],
+        "then": [
+          "The Application List Entry is created successfully",
+          "The applicant is saved as a Person",
+          "The Summary displays the person applicant details",
+          "The Applicant accordion displays the saved person details"
+        ]
+      }
+    },
+    {
+      "id": "UAT 3",
+      "title": "Create a New Application List Entry with an Organisation Applicant",
+      "summary": "Confirm a user can create a new Application List Entry with an organisation applicant and save the required organisation, application code, wording and notes information.",
+      "businessGoal": "As a court user, I need to create a new Application List Entry with an organisation applicant so that the application is recorded against the correct party.",
+      "preCondition": "An Open Application List exists and the user has permission to create Application List Entries.",
+      "scenario": {
+        "given": "I have opened an Open Application List",
+        "when": "I select Create Application",
+        "and": [
+          "I choose Organisation in the Applicant accordion",
+          "I enter Organisation Name and Address Line 1",
+          "I complete the mandatory Application Code and Wording information, using an Application Code that requires fee details where possible",
+          "I populate the Notes field",
+          "I save the application"
+        ],
+        "then": [
+          "The Application List Entry is created successfully",
+          "The applicant is saved as an Organisation",
+          "A success banner is displayed",
+          "The newly created entry can be opened from the Application List",
+          "The saved applicant details appear in the Summary and Applicant accordion sections"
+        ]
+      }
+    },
+    {
+      "id": "UAT 4",
+      "title": "Create a New Application List Entry with a Standard Applicant",
+      "summary": "Confirm a user can create a new Application List Entry by selecting a Standard Applicant from lookup.",
+      "businessGoal": "As a court user, I need to select a Standard Applicant so that frequently used applicant details can be reused without re-keying.",
+      "preCondition": "Standard Applicants exist and are available through lookup.",
+      "scenario": {
+        "given": "I am creating a new Application List Entry",
+        "when": "I select Standard Applicant in the Applicant accordion",
+        "and": [
+          "I search for and select a valid Standard Applicant",
+          "I complete the mandatory Application Code and Wording information",
+          "I populate the Notes field",
+          "I save the application"
+        ],
+        "then": [
+          "The Application List Entry is created successfully",
+          "The Standard Applicant is linked to the entry",
+          "The selected Standard Applicant appears in the Summary",
+          "No Person or Organisation applicant details are submitted at the same time"
+        ]
+      }
+    },
+    {
+      "id": "UAT 5",
+      "title": "Bulk Upload CSV",
+      "summary": "Confirm a user can upload a valid CSV file to create multiple Application List Entries.",
+      "businessGoal": "As a court user, I need to upload a CSV of applications so that multiple Application List Entries can be created efficiently.",
+      "preCondition": "An Open Application List exists.",
+      "scenario": {
+        "given": "I have opened an Application List",
+        "when": "I select Bulk Upload",
+        "and": [
+          "I choose a valid CSV file",
+          "I select Upload File"
+        ],
+        "then": [
+          "The file is accepted",
+          "An upload in progress message is displayed",
+          "The upload job is created",
+          "The user receives a success or failure outcome",
+          "Successful entries appear in the Application List after completion"
+        ]
+      }
+    },
+    {
+      "id": "UAT 6",
+      "title": "Update Applicant Details",
+      "summary": "Confirm a user can update applicant details for an existing Application List Entry.",
+      "businessGoal": "As a court user, I need to update applicant details so that data regarding the individual or organisation remains accurate.",
+      "preCondition": "An existing Application List Entry is open in update mode.",
+      "scenario": {
+        "given": "I expand the Applicant accordion",
+        "when": "I change the applicant type or update applicant fields",
+        "and": [
+          "I select Update Applicant"
+        ],
+        "then": [
+          "The applicant is updated successfully",
+          "A success banner is displayed",
+          "The Summary reflects the updated applicant"
+        ]
+      }
+    },
+    {
+      "id": "UAT 8",
+      "title": "Update Application Wording",
+      "summary": "Confirm a user can update wording for an existing Application List Entry and validation behaves correctly.",
+      "businessGoal": "As a court user, I need to update wording for an existing Application List Entry so that the application details remain correct.",
+      "preCondition": "An existing Application List Entry has an Application Code and wording.",
+      "scenario": {
+        "given": "I expand the Wording accordion",
+        "when": "I update one or more wording fields",
+        "and": [
+          "I select Save changes"
+        ],
+        "then": [
+          "The wording is saved successfully",
+          "The Summary reflects the updated wording",
+          "The accordion stays open if validation errors occur",
+          "Server validation errors map to the correct fields"
+        ]
+      }
+    },
+    {
+      "id": "UAT 9",
+      "title": "Update Respondent Details",
+      "summary": "Confirm a user can update respondent details for an existing Application List Entry.",
+      "businessGoal": "As a court user, I need to update respondent details so that the Application List Entry reflects the correct responding party.",
+      "preCondition": "An existing Application List Entry is open in update mode.",
+      "scenario": {
+        "given": "I expand the Respondent accordion",
+        "when": "I update the Person or Organisation respondent details",
+        "and": [
+          "I select Save changes"
+        ],
+        "then": [
+          "The respondent is updated successfully",
+          "Only one respondent type is active",
+          "The Summary reflects the updated respondent",
+          "Validation prevents save if required respondent fields are missing"
+        ]
+      }
+    },
+    {
+      "id": "UAT 10",
+      "title": "Update Civil Fee Details",
+      "summary": "Confirm a user can update Civil Fee details for an existing Application List Entry.",
+      "businessGoal": "As a court user, I need to update fee details so that payment information remains accurate.",
+      "preCondition": "An existing Application List Entry has Civil Fee data or a fee due Application Code.",
+      "scenario": {
+        "given": "I expand the Civil Fee accordion",
+        "when": "I update Fee Status, Status Date, Payment Reference, Value or Off Site Fee",
+        "and": [
+          "I select Save changes"
+        ],
+        "then": [
+          "The fee details are updated successfully",
+          "The updated fee details display in the Civil Fee accordion",
+          "The Summary reflects the latest fee status",
+          "A success banner is displayed"
+        ]
+      }
+    },
+    {
+      "id": "UAT 11",
+      "title": "Update Notes",
+      "summary": "Confirm a user can update notes and references for an existing Application List Entry.",
+      "businessGoal": "As a court user, I need to update notes and references so that application context remains accurate.",
+      "preCondition": "An existing Application List Entry is open in update mode.",
+      "scenario": {
+        "given": "I am on an Application List Entry in update mode",
+        "when": "I amend Application Notes, Case Reference or Account Reference",
+        "and": [
+          "I select Save changes"
+        ],
+        "then": [
+          "The changes are saved successfully",
+          "Cleared values are removed where expected",
+          "The updated values appear in the Notes accordion",
+          "A success banner is displayed"
+        ]
+      }
+    },
+    {
+      "id": "UAT 12",
+      "title": "Add Result Wording",
+      "summary": "Confirm a user can apply result codes and wording to record an application outcome.",
+      "businessGoal": "As a court user, I need to apply result codes and wording so that the application outcome is recorded correctly.",
+      "preCondition": "An existing Application List Entry is open in update mode.",
+      "scenario": {
+        "given": "I am on an Application List Entry in update mode",
+        "when": "I expand the Result Wording accordion",
+        "and": [
+          "I search for a Result Code",
+          "I select and add the result",
+          "I complete any required wording",
+          "I save changes"
+        ],
+        "then": [
+          "The result is saved successfully",
+          "The selected result appears in the result list",
+          "The Summary displays the result code and wording",
+          "A success banner is displayed"
+        ]
+      }
+    },
+    {
+      "id": "UAT 13",
+      "title": "Add Officials",
+      "summary": "Confirm a user can add Magistrates and Court Official details to an Application List Entry.",
+      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
+      "preCondition": "User is creating an Application List Entry.",
+      "scenario": {
+        "given": "I open the Officials accordion",
+        "when": "I enter up to three Magistrates and one Court Official",
+        "and": [
+          "At least one surname is provided",
+          "I save the application"
+        ],
+        "then": [
+          "The officials are saved successfully",
+          "The officials display in the order entered",
+          "The Summary and print view show the saved officials correctly"
+        ]
+      }
+    },
+    {
+      "id": "UAT 14",
+      "title": "Sort & Filtering",
+      "summary": "Confirm sorting and filtering actions work as expected for application results.",
+      "businessGoal": "",
+      "preCondition": "",
+      "scenario": {
+        "given": "",
+        "when": "",
+        "and": [],
+        "then": []
+      }
+    },
+    {
+      "id": "UAT 15",
+      "title": "Print Page (One Entry)",
+      "summary": "Confirm a user can print one selected Application List Entry from the print page.",
+      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
+      "preCondition": "User is creating an Application List Entry.",
+      "scenario": {
+        "given": "I open the Officials accordion",
+        "when": "I enter up to three Magistrates and one Court Official",
+        "and": [
+          "At least one surname is provided",
+          "I save the application"
+        ],
+        "then": [
+          "The officials are saved successfully",
+          "The officials display in the order entered",
+          "The Summary and print view show the saved officials correctly"
+        ]
+      }
+    },
+    {
+      "id": "UAT 16",
+      "title": "Print Cont (One Entry)",
+      "summary": "Confirm a user can continue or complete the print flow for one selected Application List Entry.",
+      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
+      "preCondition": "User is creating an Application List Entry.",
+      "scenario": {
+        "given": "I open the Officials accordion",
+        "when": "I enter up to three Magistrates and one Court Official",
+        "and": [
+          "At least one surname is provided",
+          "I save the application"
+        ],
+        "then": [
+          "The officials are saved successfully",
+          "The officials display in the order entered",
+          "The Summary and print view show the saved officials correctly"
+        ]
+      }
+    },
+    {
+      "id": "UAT 17",
+      "title": "Print Page (Select All)",
+      "summary": "Confirm a user can print all selected Application List Entries from the print page.",
+      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
+      "preCondition": "User is creating an Application List Entry.",
+      "scenario": {
+        "given": "I open the Officials accordion",
+        "when": "I enter up to three Magistrates and one Court Official",
+        "and": [
+          "At least one surname is provided",
+          "I save the application"
+        ],
+        "then": [
+          "The officials are saved successfully",
+          "The officials display in the order entered",
+          "The Summary and print view show the saved officials correctly"
+        ]
+      }
+    },
+    {
+      "id": "UAT 18",
+      "title": "Print Cont (Select All)",
+      "summary": "Confirm a user can continue or complete the print flow for all selected Application List Entries.",
+      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
+      "preCondition": "User is creating an Application List Entry.",
+      "scenario": {
+        "given": "I open the Officials accordion",
+        "when": "I enter up to three Magistrates and one Court Official",
+        "and": [
+          "At least one surname is provided",
+          "I save the application"
+        ],
+        "then": [
+          "The officials are saved successfully",
+          "The officials display in the order entered",
+          "The Summary and print view show the saved officials correctly"
+        ]
+      }
+    },
+    {
+      "id": "UAT 19",
+      "title": "Move Applications",
+      "summary": "Confirm a user can move one or more Application List Entries to another Application List.",
+      "businessGoal": "As a court user, I need to move one or more Application List Entries to another list so that workload can be managed flexibly.",
+      "preCondition": "One or more eligible Application List Entries are selected.",
+      "scenario": {
+        "given": "I have selected one or more Application List Entries",
+        "when": "I select Move Applications",
+        "and": [
+          "I choose a target Application List, using the create an Application List steps from UAT 1 where needed",
+          "I review the Check your answers page",
+          "I confirm the move"
+        ],
+        "then": [
+          "The selected applications are moved successfully",
+          "A success banner is displayed",
+          "The applications appear on the target list",
+          "The applications are no longer shown on the original list where applicable",
+          "Return to Applications takes me back with selections cleared"
+        ]
+      }
+    },
+    {
+      "id": "UAT 20",
+      "title": "Bulk Update Fee Details",
+      "summary": "Confirm a user can update fee details for multiple selected Application List Entries.",
+      "businessGoal": "As a court user, I need to update fee details for multiple applications so that payment status can be managed efficiently.",
+      "preCondition": "Multiple Application List Entries are selected and they all require a fee.",
+      "scenario": {
+        "given": "I have selected multiple Application List Entries",
+        "when": "I select Update Fee Details",
+        "and": [
+          "I enter Fee Status, Status Date, Payment Reference and Off Site Fee where required",
+          "I save the changes"
+        ],
+        "then": [
+          "The fee update is applied to the selected entries",
+          "A success banner is displayed",
+          "Validation prevents invalid fee status or date values",
+          "Return to Applications clears the selections"
+        ]
+      }
+    },
+    {
+      "id": "UAT 21",
+      "title": "Remove a Result",
+      "summary": "Confirm a user can remove an incorrect result from an Application List Entry.",
+      "businessGoal": "As a court user, I need to remove an incorrect result so that the application outcome is accurate.",
+      "preCondition": "An Application List Entry has at least one result recorded.",
+      "scenario": {
+        "given": "I expand the Result Wording accordion",
+        "when": "I remove an existing result",
+        "and": [
+          "I confirm the action"
+        ],
+        "then": [
+          "The result is removed successfully",
+          "The result no longer appears in the Result Wording section",
+          "The Summary is updated",
+          "A success banner is displayed"
+        ]
+      }
+    },
+    {
+      "id": "UAT 22",
+      "title": "Result Selected with Select All",
+      "summary": "Confirm Select All represents all matching applications when applying result actions across a result set.",
+      "businessGoal": "As a court user, I need Select All to represent all matching applications so that I understand the scope of the result action.",
+      "preCondition": "Search results span more than one page.",
+      "scenario": {
+        "given": "I select all applications across the current result set",
+        "when": "I open the Result Selected screen",
+        "and": [],
+        "then": [
+          "The screen clearly indicates that all matching applications are selected",
+          "The table is replaced with an All summary where appropriate",
+          "The save action applies to the intended selected set",
+          "The selection scope is not confused with only the current page"
+        ]
+      }
+    }
+  ]
+}
