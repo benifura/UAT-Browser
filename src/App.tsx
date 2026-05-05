@@ -15,6 +15,7 @@ const RESULT_STATUSES: ScenarioResultStatus[] = ['Pass', 'Fail', 'Partially Pass
 
 const emptyProgress: SavedProgress = {
   currentScenarioIndex: null,
+  highestUnlockedScenarioIndex: 0,
   results: {},
   lastSaved: null
 };
@@ -43,9 +44,19 @@ function getInitialProgress(): SavedProgress {
       ])
     );
 
+    const currentScenarioIndex =
+      typeof parsedProgress.currentScenarioIndex === 'number' ? parsedProgress.currentScenarioIndex : null;
+    const savedHighestUnlockedIndex =
+      typeof parsedProgress.highestUnlockedScenarioIndex === 'number'
+        ? parsedProgress.highestUnlockedScenarioIndex
+        : currentScenarioIndex ?? 0;
+
     return {
-      currentScenarioIndex:
-        typeof parsedProgress.currentScenarioIndex === 'number' ? parsedProgress.currentScenarioIndex : null,
+      currentScenarioIndex,
+      highestUnlockedScenarioIndex: Math.min(
+        Math.max(savedHighestUnlockedIndex, currentScenarioIndex ?? 0, 0),
+        Math.max(scenarioPack.scenarios.length - 1, 0)
+      ),
       results,
       lastSaved: parsedProgress.lastSaved ?? null
     };
@@ -210,19 +221,15 @@ function App() {
       return index === 0;
     }
 
-    if (index <= selectedScenarioIndex) {
-      return true;
-    }
-
-    return index === selectedScenarioIndex + 1;
+    return index <= progress.highestUnlockedScenarioIndex;
   }
 
-  function requestScenarioChange(nextIndex: number) {
+  function requestScenarioChange(nextIndex: number, movementType: 'card' | 'next' | 'previous' = 'card') {
     if (
       nextIndex < 0 ||
       nextIndex >= scenarioPack.scenarios.length ||
       nextIndex === selectedScenarioIndex ||
-      !canSelectScenario(nextIndex)
+      (movementType !== 'next' && !canSelectScenario(nextIndex))
     ) {
       return;
     }
@@ -232,24 +239,35 @@ function App() {
       return;
     }
 
-    const validationError = getMovementValidationError(selectedResult);
+    const isMovingBack = selectedScenarioIndex !== null && nextIndex < selectedScenarioIndex;
+    const isMovingForward = selectedScenarioIndex !== null && nextIndex > selectedScenarioIndex;
 
-    if (validationError) {
-      setMovementValidationMessage(validationError);
-      scenarioDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
+    if (isMovingForward) {
+      const validationError = getMovementValidationError(selectedResult);
+
+      if (validationError) {
+        setMovementValidationMessage(validationError);
+        scenarioDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
     }
 
-    setMovementValidationMessage('');
-    selectScenario(nextIndex);
+    if (isMovingBack || movementType === 'previous') {
+      setMovementValidationMessage('');
+    }
+
+    selectScenario(nextIndex, movementType === 'next');
   }
 
-  function selectScenario(nextIndex: number) {
+  function selectScenario(nextIndex: number, unlockScenario = false) {
     setIsReviewOpen(false);
     setMovementValidationMessage('');
     updateProgress((currentProgress) => ({
       ...currentProgress,
-      currentScenarioIndex: nextIndex
+      currentScenarioIndex: nextIndex,
+      highestUnlockedScenarioIndex: unlockScenario
+        ? Math.max(currentProgress.highestUnlockedScenarioIndex, nextIndex)
+        : currentProgress.highestUnlockedScenarioIndex
     }));
   }
 
@@ -394,7 +412,7 @@ function App() {
                       type="button"
                       key={scenario.id}
                       className={cardClassName}
-                      onClick={() => requestScenarioChange(index)}
+                      onClick={() => requestScenarioChange(index, 'card')}
                       aria-current={isSelected ? 'true' : undefined}
                       disabled={!isAvailable}
                     >
@@ -517,7 +535,7 @@ function App() {
                     type="button"
                     className="button button--secondary"
                     disabled={selectedScenarioIndex === 0}
-                    onClick={() => requestScenarioChange(selectedScenarioIndex! - 1)}
+                    onClick={() => requestScenarioChange(selectedScenarioIndex! - 1, 'previous')}
                   >
                     Previous
                   </button>
@@ -530,7 +548,7 @@ function App() {
                       type="button"
                       className={'button button--secondary ' + (!isScenarioResultComplete(selectedResult) ? 'button--blocked' : '')}
                       aria-disabled={!isScenarioResultComplete(selectedResult)}
-                      onClick={() => requestScenarioChange(selectedScenarioIndex! + 1)}
+                      onClick={() => requestScenarioChange(selectedScenarioIndex! + 1, 'next')}
                     >
                       Next
                     </button>

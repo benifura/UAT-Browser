@@ -29,6 +29,7 @@ export interface ScenarioProgress {
 
 export interface SavedProgress {
   currentScenarioIndex: number | null;
+  highestUnlockedScenarioIndex: number;
   results: Record<string, ScenarioProgress>;
   lastSaved: string | null;
 }
