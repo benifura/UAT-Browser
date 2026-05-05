@@ -115,6 +115,14 @@ function getCommentError(result: ScenarioProgress): string {
   return '';
 }
 
+function getMovementValidationError(result: ScenarioProgress | null): string {
+  if (!result?.status) {
+    return 'Select Pass, Fail, or Partially Passed before moving to another scenario.';
+  }
+
+  return getCommentError(result);
+}
+
 function App() {
   const [progress, setProgress] = useState<SavedProgress>(getInitialProgress);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
@@ -122,6 +130,7 @@ function App() {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [testerName, setTesterName] = useState('');
   const [showTesterNameError, setShowTesterNameError] = useState(false);
+  const [movementValidationMessage, setMovementValidationMessage] = useState('');
   const clearModalCancelRef = useRef<HTMLButtonElement>(null);
   const exportModalInputRef = useRef<HTMLInputElement>(null);
   const scenarioDetailRef = useRef<HTMLElement>(null);
@@ -193,15 +202,7 @@ function App() {
   }
 
   function isScenarioResultComplete(result: ScenarioProgress | null): boolean {
-    if (!result?.status) {
-      return false;
-    }
-
-    if (result.status === 'Pass') {
-      return true;
-    }
-
-    return hasRequiredComment(result);
+    return !getMovementValidationError(result);
   }
 
   function canSelectScenario(index: number): boolean {
@@ -213,7 +214,7 @@ function App() {
       return true;
     }
 
-    return index === selectedScenarioIndex + 1 && isScenarioResultComplete(selectedResult);
+    return index === selectedScenarioIndex + 1;
   }
 
   function requestScenarioChange(nextIndex: number) {
@@ -226,11 +227,26 @@ function App() {
       return;
     }
 
+    if (selectedScenarioIndex === null) {
+      selectScenario(nextIndex);
+      return;
+    }
+
+    const validationError = getMovementValidationError(selectedResult);
+
+    if (validationError) {
+      setMovementValidationMessage(validationError);
+      scenarioDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    setMovementValidationMessage('');
     selectScenario(nextIndex);
   }
 
   function selectScenario(nextIndex: number) {
     setIsReviewOpen(false);
+    setMovementValidationMessage('');
     updateProgress((currentProgress) => ({
       ...currentProgress,
       currentScenarioIndex: nextIndex
@@ -323,7 +339,6 @@ function App() {
     <main className="app">
       <div className="app__inner">
         <header className="page-header">
-          <span className="service-name">UAT results capture</span>
           <h1>{scenarioPack.projectName}</h1>
           <p>
             Work through each scenario in order, record the result, and export a PDF when every scenario is complete.
@@ -403,6 +418,12 @@ function App() {
                   {selectedScenario.id} - {selectedScenario.title}
                 </h2>
 
+                {movementValidationMessage ? (
+                  <p className="error-message movement-error" role="alert">
+                    {movementValidationMessage}
+                  </p>
+                ) : null}
+
                 <div className="detail-block">
                   <h3>Business Goal</h3>
                   <p>{selectedScenario.businessGoal}</p>
@@ -447,7 +468,10 @@ function App() {
                           name={'result-' + selectedScenario.id}
                           value={status}
                           checked={selectedResult.status === status}
-                          onChange={() => updateScenarioResult(selectedScenario.id, { status })}
+                          onChange={() => {
+                            setMovementValidationMessage('');
+                            updateScenarioResult(selectedScenario.id, { status });
+                          }}
                         />
                         <span>{status}</span>
                       </label>
@@ -469,7 +493,10 @@ function App() {
                     aria-describedby={
                       getCommentError(selectedResult) ? 'comments-error-' + selectedScenario.id : undefined
                     }
-                    onChange={(event) => updateScenarioResult(selectedScenario.id, { comments: event.target.value })}
+                    onChange={(event) => {
+                      setMovementValidationMessage('');
+                      updateScenarioResult(selectedScenario.id, { comments: event.target.value });
+                    }}
                   />
                 </div>
 
@@ -501,8 +528,8 @@ function App() {
                   ) : (
                     <button
                       type="button"
-                      className="button button--secondary"
-                      disabled={!isScenarioResultComplete(selectedResult)}
+                      className={'button button--secondary ' + (!isScenarioResultComplete(selectedResult) ? 'button--blocked' : '')}
+                      aria-disabled={!isScenarioResultComplete(selectedResult)}
                       onClick={() => requestScenarioChange(selectedScenarioIndex! + 1)}
                     >
                       Next
