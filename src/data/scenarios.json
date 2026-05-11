@@ -135,7 +135,7 @@
       }
     },
     {
-      "id": "UAT 8",
+      "id": "UAT 7",
       "title": "Update Application Wording",
       "summary": "Confirm a user can update wording for an existing Application List Entry and validation behaves correctly.",
       "businessGoal": "As a court user, I need to update wording for an existing Application List Entry so that the application details remain correct.",
@@ -155,7 +155,7 @@
       }
     },
     {
-      "id": "UAT 9",
+      "id": "UAT 8",
       "title": "Update Respondent Details",
       "summary": "Confirm a user can update respondent details for an existing Application List Entry.",
       "businessGoal": "As a court user, I need to update respondent details so that the Application List Entry reflects the correct responding party.",
@@ -175,7 +175,7 @@
       }
     },
     {
-      "id": "UAT 10",
+      "id": "UAT 9",
       "title": "Update Civil Fee Details",
       "summary": "Confirm a user can update Civil Fee details for an existing Application List Entry.",
       "businessGoal": "As a court user, I need to update fee details so that payment information remains accurate.",
@@ -195,7 +195,7 @@
       }
     },
     {
-      "id": "UAT 11",
+      "id": "UAT 10",
       "title": "Update Notes",
       "summary": "Confirm a user can update notes and references for an existing Application List Entry.",
       "businessGoal": "As a court user, I need to update notes and references so that application context remains accurate.",
@@ -215,7 +215,7 @@
       }
     },
     {
-      "id": "UAT 12",
+      "id": "UAT 11",
       "title": "Add Result Wording",
       "summary": "Confirm a user can apply result codes and wording to record an application outcome.",
       "businessGoal": "As a court user, I need to apply result codes and wording so that the application outcome is recorded correctly.",
@@ -238,7 +238,7 @@
       }
     },
     {
-      "id": "UAT 13",
+      "id": "UAT 12",
       "title": "Add Officials",
       "summary": "Confirm a user can add Magistrates and Court Official details to an Application List Entry.",
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
@@ -258,7 +258,7 @@
       }
     },
     {
-      "id": "UAT 14",
+      "id": "UAT 13",
       "title": "Sort & Filtering",
       "summary": "Confirm sorting and filtering actions work as expected for application results.",
       "businessGoal": "",
@@ -271,7 +271,7 @@
       }
     },
     {
-      "id": "UAT 15",
+      "id": "UAT 14",
       "title": "Print Page (One Entry)",
       "summary": "Confirm a user can print one selected Application List Entry from the print page.",
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
@@ -291,7 +291,7 @@
       }
     },
     {
-      "id": "UAT 16",
+      "id": "UAT 15",
       "title": "Print Cont (One Entry)",
       "summary": "Confirm a user can continue or complete the print flow for one selected Application List Entry.",
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
@@ -311,7 +311,7 @@
       }
     },
     {
-      "id": "UAT 17",
+      "id": "UAT 16",
       "title": "Print Page (Select All)",
       "summary": "Confirm a user can print all selected Application List Entries from the print page.",
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
@@ -331,7 +331,7 @@
       }
     },
     {
-      "id": "UAT 18",
+      "id": "UAT 17",
       "title": "Print Cont (Select All)",
       "summary": "Confirm a user can continue or complete the print flow for all selected Application List Entries.",
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
@@ -351,7 +351,7 @@
       }
     },
     {
-      "id": "UAT 19",
+      "id": "UAT 18",
       "title": "Move Applications",
       "summary": "Confirm a user can move one or more Application List Entries to another Application List.",
       "businessGoal": "As a court user, I need to move one or more Application List Entries to another list so that workload can be managed flexibly.",
@@ -374,7 +374,7 @@
       }
     },
     {
-      "id": "UAT 20",
+      "id": "UAT 19",
       "title": "Bulk Update Fee Details",
       "summary": "Confirm a user can update fee details for multiple selected Application List Entries.",
       "businessGoal": "As a court user, I need to update fee details for multiple applications so that payment status can be managed efficiently.",
@@ -395,7 +395,7 @@
       }
     },
     {
-      "id": "UAT 21",
+      "id": "UAT 20",
       "title": "Remove a Result",
       "summary": "Confirm a user can remove an incorrect result from an Application List Entry.",
       "businessGoal": "As a court user, I need to remove an incorrect result so that the application outcome is accurate.",
@@ -415,7 +415,7 @@
       }
     },
     {
-      "id": "UAT 22",
+      "id": "UAT 21",
       "title": "Result Selected with Select All",
       "summary": "Confirm Select All represents all matching applications when applying result actions across a result set.",
       "businessGoal": "As a court user, I need Select All to represent all matching applications so that I understand the scope of the result action.",
