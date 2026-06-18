@@ -183,7 +183,7 @@
           "User can select a different file and retry"
         ]
       }
-    }
+    },
     {
       "id": "UAT 5c",
       "title": "Bulk Upload CSV",
