@@ -17,56 +17,103 @@
         "then": [
           "The list is saved successfully",
           "The default status is \"Open\"",
-          "The list appears in search results",
-          "An audit record is created"
+          "The list appears in search results"
         ]
       }
     },
     {
-      "id": "UAT 2",
-      "title": "Create a New Application List Entry with a Person Applicant",
-      "summary": "Confirm a user can create a new Application List Entry with a person applicant and save the required applicant, application code, wording, civil fee and notes information.",
-      "businessGoal": "As a court user, I need to create a new Application List Entry with a person applicant so that individual applicant details are recorded correctly.",
-      "preCondition": "An Open Application List exists and the user has permission to create Application List Entries.",
+      "id": "UAT 2a",
+      "title": "Create a New Application List Entry with a Person Applicant (Fee Required, Respondent Required)",
+      "summary": "Confirm a user can create an Application List Entry with a person applicant using an application code where both respondent and fee are mandatory.",
+      "businessGoal": "As a court user, I need to create an Application List Entry with a person applicant and respondent details so that the application is properly recorded with complete information.",
+      "preCondition": "An Open Application List exists; application code selected requires respondent + fee.",
       "scenario": {
         "given": "I am creating a new Application List Entry",
         "when": "I select Person in the Applicant accordion",
         "and": [
-          "I populate the mandatory fields in the Applicant section: First Forename, Surname and Address Line 1",
-          "I populate the Application Code and complete the mandatory Application Codes, Wording and Civil Fee details, using an Application Code that requires fee details where possible",
-          "I populate the Notes field",
+          "I populate mandatory applicant fields: First Forename, Surname, Address Line 1",
+          "I populate mandatory Respondent fields (Person or Organisation)",
+          "I populate Application Code, Wording, and Civil Fee details",
+          "I populate Notes field",
           "I save the application"
         ],
         "then": [
           "The Application List Entry is created successfully",
-          "The applicant is saved as a Person",
-          "The Summary displays the person applicant details",
-          "The Applicant accordion displays the saved person details"
+          "The applicant and respondent are saved",
+          "The Summary displays both applicant and respondent details",
+          "Both Applicant and Respondent accordions display saved details"
         ]
       }
     },
     {
-      "id": "UAT 3",
-      "title": "Create a New Application List Entry with an Organisation Applicant",
-      "summary": "Confirm a user can create a new Application List Entry with an organisation applicant and save the required organisation, application code, wording and notes information.",
-      "businessGoal": "As a court user, I need to create a new Application List Entry with an organisation applicant so that the application is recorded against the correct party.",
-      "preCondition": "An Open Application List exists and the user has permission to create Application List Entries.",
+      "id": "UAT 2b",
+      "title": "Create a New Application List Entry with a Person Applicant (Respondent Optional)",
+      "summary": "Confirm a user can create an Application List Entry with a person applicant using an application code where respondent is optional.",
+      "businessGoal": "As a court user, I need to create an Application List Entry with a person applicant when respondent information is not required.",
+      "preCondition": "An Open Application List exists; application code selected has respondent as optional.",
+      "scenario": {
+        "given": "I am creating a new Application List Entry",
+        "when": "I select Person in the Applicant accordion and choose an app code with optional respondent",
+        "and": [
+          "I populate mandatory applicant fields: First Forename, Surname, Address Line 1",
+          "I skip Respondent section (optional)",
+          "I populate Application Code and Wording details",
+          "I save the application"
+        ],
+        "then": [
+          "The Application List Entry is created successfully",
+          "The applicant is saved",
+          "Respondent section is empty or not displayed",
+          "The Summary shows applicant details only"
+        ]
+      }
+    },
+    {
+      "id": "UAT 3a",
+      "title": "Create a New Application List Entry with an Organisation Applicant (Fee Required, Respondent Required)",
+      "summary": "Confirm a user can create an Application List Entry with an organisation applicant using an application code where both respondent and fee are mandatory.",
+      "businessGoal": "As a court user, I need to create an Application List Entry with an organisation applicant and respondent details so that the application is recorded against the correct parties.",
+      "preCondition": "An Open Application List exists; application code selected requires respondent + fee.",
       "scenario": {
         "given": "I have opened an Open Application List",
         "when": "I select Create Application",
         "and": [
           "I choose Organisation in the Applicant accordion",
           "I enter Organisation Name and Address Line 1",
-          "I complete the mandatory Application Code and Wording information, using an Application Code that requires fee details where possible",
-          "I populate the Notes field",
+          "I populate mandatory Respondent fields",
+          "I complete mandatory Application Code, Wording, and Civil Fee information",
+          "I populate Notes field",
           "I save the application"
         ],
         "then": [
           "The Application List Entry is created successfully",
-          "The applicant is saved as an Organisation",
+          "Both applicant and respondent are saved as organisations",
           "A success banner is displayed",
-          "The newly created entry can be opened from the Application List",
-          "The saved applicant details appear in the Summary and Applicant accordion sections"
+          "The newly created entry displays both applicant and respondent in Summary and accordions"
+        ]
+      }
+    },
+    {
+      "id": "UAT 3b",
+      "title": "Create a New Application List Entry with an Organisation Applicant (Respondent Optional)",
+      "summary": "Confirm a user can create an Application List Entry with an organisation applicant using an application code where respondent is optional.",
+      "businessGoal": "As a court user, I need to create an Application List Entry with an organisation applicant when respondent information is not required.",
+      "preCondition": "An Open Application List exists; application code selected has respondent as optional.",
+      "scenario": {
+        "given": "I have opened an Open Application List",
+        "when": "I select Create Application and choose an app code with optional respondent",
+        "and": [
+          "I choose Organisation in the Applicant accordion",
+          "I enter Organisation Name and Address Line 1",
+          "I skip Respondent section (optional)",
+          "I complete Application Code and Wording information",
+          "I save the application"
+        ],
+        "then": [
+          "The Application List Entry is created successfully",
+          "The organisation applicant is saved",
+          "Respondent section remains empty",
+          "The newly created entry appears in the Application List"
         ]
       }
     },
@@ -94,7 +141,51 @@
       }
     },
     {
-      "id": "UAT 5",
+      "id": "UAT 5a",
+      "title": "Invalid CSV Upload — Missing Required Fields",
+      "summary": "Confirm the system rejects CSV uploads where required columns or data are missing.",
+      "businessGoal": "As a court user, I need to know which required fields are missing so that I can correct the CSV before re-uploading.",
+      "preCondition": "An Open Application List exists.",
+      "scenario": {
+        "given": "I have opened an Application List",
+        "when": "I select Bulk Upload",
+        "and": [
+          "I select a CSV file with missing required columns (e.g., missing Applicant First Forename, Surname, or Address Line 1)",
+          "I select Upload File"
+        ],
+        "then": [
+          "The upload is rejected after file validation",
+          "An error message lists the missing required columns",
+          "Error details include row numbers where data is missing or incomplete",
+          "No entries are created",
+          "User is guided to update the CSV and resubmit"
+        ]
+      }
+    },
+    {
+      "id": "UAT 5b",
+      "title": "Invalid CSV Upload — Incorrect File Format",
+      "summary": "Confirm the system rejects CSV files with incorrect format and displays an appropriate error message.",
+      "businessGoal": "As a court user, I need clear feedback when an invalid file format is uploaded so that I can provide the correct file.",
+      "preCondition": "An Open Application List exists.",
+      "scenario": {
+        "given": "I have opened an Application List",
+        "when": "I select Bulk Upload",
+        "and": [
+          "I select an invalid file format (e.g., .xlsx, .txt, .pdf instead of .csv)",
+          "I select Upload File"
+        ],
+        "then": [
+          "The upload is rejected",
+          "An error message is displayed: 'Invalid file format. Please upload a CSV file.'",
+          "The upload does not proceed",
+          "The file input is cleared and ready for a new attempt",
+          "User can select a different file and retry"
+        ]
+      }
+    }
+    {
+      "id": "UAT 5c",
       "title": "Bulk Upload CSV",
       "summary": "Confirm a user can upload a valid CSV file to create multiple Application List Entries.",
       "businessGoal": "As a court user, I need to upload a CSV of applications so that multiple Application List Entries can be created efficiently.",
@@ -214,8 +305,52 @@
         ]
       }
     },
+     {
+      "id": "UAT 11a",
+      "title": "Bulk Update Notes",
+      "summary": "Confirm a user can update notes and references for multiple selected Application List Entries in one action.",
+      "businessGoal": "As a court user, I need to bulk update notes for multiple applications so that application context and references can be managed efficiently.",
+      "preCondition": "Multiple Application List Entries are selected.",
+      "scenario": {
+        "given": "I have selected multiple Application List Entries",
+        "when": "I select Bulk Update Notes",
+        "and": [
+          "I update Application Notes, Case Reference and/or Account Reference",
+          "I save the bulk update"
+        ],
+        "then": [
+          "The notes are updated for all selected entries",
+          "A success banner displays the count of updated entries",
+          "Cleared values are removed where expected across all entries",
+          "The updated values appear in the Notes accordion of each entry",
+          "Return to Applications clears selections"
+        ]
+      }
+    },
     {
-      "id": "UAT 11",
+      "id": "UAT 11b",
+      "title": "Bulk Update Officials",
+      "summary": "Confirm a user can update Magistrates and Court Official details for multiple selected Application List Entries in one action.",
+      "businessGoal": "As a court user, I need to bulk update officials for multiple applications so that officer and magistrate assignments can be managed efficiently.",
+      "preCondition": "Multiple Application List Entries are selected.",
+      "scenario": {
+        "given": "I have selected multiple Application List Entries",
+        "when": "I select Bulk Update Officials",
+        "and": [
+          "I enter up to three Magistrates and one Court Official details",
+          "I save the bulk update"
+        ],
+        "then": [
+          "The officials are updated for all selected entries",
+          "A success banner displays the count of updated entries",
+          "The officials appear in the specified order",
+          "Validation prevents save if no surname is provided",
+          "Return to Applications clears selections"
+        ]
+      }
+    },
+    {
+      "id": "UAT 12",
       "title": "Add Result Wording",
       "summary": "Confirm a user can apply result codes and wording to record an application outcome.",
       "businessGoal": "As a court user, I need to apply result codes and wording so that the application outcome is recorded correctly.",
@@ -224,7 +359,7 @@
         "given": "I am on an Application List Entry in update mode",
         "when": "I expand the Result Wording accordion",
         "and": [
-          "I search for a Result Code",
+          "I search for a valid Result Code",
           "I select and add the result",
           "I complete any required wording",
           "I save changes"
@@ -238,7 +373,7 @@
       }
     },
     {
-      "id": "UAT 12",
+      "id": "UAT 13",
       "title": "Add Officials",
       "summary": "Confirm a user can add Magistrates and Court Official details to an Application List Entry.",
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
@@ -258,100 +393,203 @@
       }
     },
     {
-      "id": "UAT 13",
-      "title": "Sort & Filtering",
-      "summary": "Confirm sorting and filtering actions work as expected for application results.",
-      "businessGoal": "",
-      "preCondition": "",
-      "scenario": {
-        "given": "",
-        "when": "",
-        "and": [],
-        "then": []
-      }
-    },
-    {
       "id": "UAT 14",
-      "title": "Print Page (One Entry)",
-      "summary": "Confirm a user can print one selected Application List Entry from the print page.",
-      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
-      "preCondition": "User is creating an Application List Entry.",
+      "title": "Search, Filter & Sort Application List",
+      "summary": "Confirm search, filtering and sorting actions work together as expected for application results.",
+      "businessGoal": "As a court user, I need to search, filter and sort Application Lists so that I can efficiently find the applications I need to work with.",
+      "preCondition": "Multiple Application Lists and entries exist with varied statuses, dates, and applicant types.",
       "scenario": {
-        "given": "I open the Officials accordion",
-        "when": "I enter up to three Magistrates and one Court Official",
+        "given": "I am on the Application Lists screen with multiple results",
+        "when": "I enter a search keyword (applicant name, application reference, etc.)",
         "and": [
-          "At least one surname is provided",
-          "I save the application"
+          "The search results are displayed",
+          "I apply one or more filters (e.g., Status = Open; Date = Last 7 days)",
+          "The results are filtered to match my criteria",
+          "I click a column header to sort results (e.g., by Created Date, Applicant Name)"
         ],
         "then": [
-          "The officials are saved successfully",
-          "The officials display in the order entered",
-          "The Summary and print view show the saved officials correctly"
+          "Search results accurately match the keyword",
+          "Filtered results show only matching entries",
+          "Sorted results display in correct order",
+          "Page numbers and total count reflect filtered and sorted results",
+          "Filters and sort remain active if I navigate away and return"
         ]
       }
     },
     {
-      "id": "UAT 15",
-      "title": "Print Cont (One Entry)",
-      "summary": "Confirm a user can continue or complete the print flow for one selected Application List Entry.",
-      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
-      "preCondition": "User is creating an Application List Entry.",
+      "id": "UAT 15a",
+      "title": "Print One Entry — Positive Path",
+      "summary": "Confirm a user can print one selected Application List Entry with complete valid data.",
+      "businessGoal": "As a court user, I need to view and print one Application List Entry so that I can generate a record for audit or filing.",
+      "preCondition": "A valid Application List Entry with complete applicant, respondent, fee, officials and result data exists and is selected.",
       "scenario": {
-        "given": "I open the Officials accordion",
-        "when": "I enter up to three Magistrates and one Court Official",
+        "given": "I have selected one Application List Entry with complete data",
+        "when": "I select Print",
         "and": [
-          "At least one surname is provided",
-          "I save the application"
+          "All mandatory data is present: applicant, wording, civil fee (if required), officials, results (if applicable)",
+          "The print preview displays correctly",
+          "I select Confirm Print"
         ],
         "then": [
-          "The officials are saved successfully",
-          "The officials display in the order entered",
-          "The Summary and print view show the saved officials correctly"
+          "The print job is sent successfully",
+          "The printed output displays all sections correctly",
+          "Officials appear in the order entered",
+          "Fee details display accurately",
+          "Result codes and wording appear on print"
         ]
       }
     },
     {
-      "id": "UAT 16",
-      "title": "Print Page (Select All)",
-      "summary": "Confirm a user can print all selected Application List Entries from the print page.",
-      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
-      "preCondition": "User is creating an Application List Entry.",
+      "id": "UAT 15b",
+      "title": "Print One Entry — Negative Path (Missing Data)",
+      "summary": "Confirm the system prevents printing an entry with missing mandatory data and displays appropriate error messages.",
+      "businessGoal": "As a court user, I need clear validation messages when print data is incomplete so I can correct issues before printing.",
+      "preCondition": "An Application List Entry with missing mandatory fields (e.g., no respondent when required; no fee details) is selected.",
       "scenario": {
-        "given": "I open the Officials accordion",
-        "when": "I enter up to three Magistrates and one Court Official",
+        "given": "I have selected an Application List Entry with incomplete data",
+        "when": "I select Print",
         "and": [
-          "At least one surname is provided",
-          "I save the application"
+          "The system validates print data",
+          "Mandatory fields are missing or invalid"
         ],
         "then": [
-          "The officials are saved successfully",
-          "The officials display in the order entered",
-          "The Summary and print view show the saved officials correctly"
+          "Validation error messages are displayed",
+          "The error messages identify missing fields",
+          "Print action is prevented",
+          "User is guided to complete missing data before retrying"
         ]
       }
     },
     {
-      "id": "UAT 17",
-      "title": "Print Cont (Select All)",
-      "summary": "Confirm a user can continue or complete the print flow for all selected Application List Entries.",
-      "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
-      "preCondition": "User is creating an Application List Entry.",
+      "id": "UAT 16a",
+      "title": "Print Continuation One Entry — Positive Path",
+      "summary": "Confirm a user can review and complete the print flow for one entry with all sections confirmed.",
+      "businessGoal": "As a court user, I need to review and confirm print details before finalizing so that the correct output is generated.",
+      "preCondition": "Print preview is open with complete valid data.",
       "scenario": {
-        "given": "I open the Officials accordion",
-        "when": "I enter up to three Magistrates and one Court Official",
+        "given": "I am on the print confirmation screen for one entry",
+        "when": "I review all sections (applicant, respondent, fees, officials, results)",
         "and": [
-          "At least one surname is provided",
-          "I save the application"
+          "All data displays correctly",
+          "I select Confirm Print or Continue"
         ],
         "then": [
-          "The officials are saved successfully",
-          "The officials display in the order entered",
-          "The Summary and print view show the saved officials correctly"
+          "The print flow completes successfully",
+          "The print job is processed",
+          "A success message is displayed",
+          "I am returned to the Application List"
         ]
       }
     },
     {
-      "id": "UAT 18",
+      "id": "UAT 16b",
+      "title": "Print Continuation One Entry — Negative Path (Invalid Data)",
+      "summary": "Confirm the system prevents print continuation when invalid or corrupted data is detected.",
+      "businessGoal": "As a court user, I need to be alerted to data integrity issues so I can resolve them before printing.",
+      "preCondition": "Print preview displays data validation errors (e.g., fee value exceeds allowed range; invalid date format in officials).",
+      "scenario": {
+        "given": "I am on the print confirmation screen",
+        "when": "The system detects invalid or corrupted data during validation",
+        "and": [
+          "Invalid fields are highlighted",
+          "Error messages explain the issue"
+        ],
+        "then": [
+          "Print continuation is blocked",
+          "User is guided to correct the data in the main entry",
+          "Print flow is cancelled or reset",
+          "User must return to the entry, fix issues, and retry print"
+        ]
+      }
+    },
+    {
+      "id": "UAT 17a",
+      "title": "Print Select All — Positive Path",
+      "summary": "Confirm a user can print all selected Application List Entries with complete valid data.",
+      "businessGoal": "As a court user, I need to print multiple Application List Entries in one action so that I can generate batch records efficiently.",
+      "preCondition": "Multiple Application List Entries with complete valid data are selected.",
+      "scenario": {
+        "given": "I have selected multiple Application List Entries, all with complete data",
+        "when": "I select Print All",
+        "and": [
+          "The system validates all entries",
+          "All entries pass validation (complete applicant, wording, fees, officials, results as applicable)",
+          "The print preview displays all entries",
+          "I confirm the print"
+        ],
+        "then": [
+          "All selected entries print successfully",
+          "Each entry prints with all sections correctly displayed",
+          "Print job processes without errors",
+          "A success message shows count of printed entries"
+        ]
+      }
+    },
+    {
+      "id": "UAT 17b",
+      "title": "Print Select All — Negative Path (Mixed Valid/Invalid)",
+      "summary": "Confirm the system handles a selection where some entries are valid and others have missing data.",
+      "businessGoal": "As a court user, I need to know which entries cannot be printed so I can complete them before retrying the batch action.",
+      "preCondition": "Multiple entries are selected; some are complete and valid, others have missing mandatory data.",
+      "scenario": {
+        "given": "I have selected multiple Application List Entries with mixed completeness",
+        "when": "I select Print All",
+        "and": [
+          "The system validates all entries",
+          "Some entries fail validation (missing respondent, incomplete fee details, etc.)"
+        ],
+        "then": [
+          "Validation prevents the batch print from proceeding",
+          "Error message lists which entries failed and why",
+          "User is prompted to fix the incomplete entries",
+          "A link or action allows user to view and edit the problematic entries",
+          "Print action can be retried once issues are corrected"
+        ]
+      }
+    },
+    {
+      "id": "UAT 18a",
+      "title": "Print Continuation Select All — Positive Path",
+      "summary": "Confirm a user can review and complete the print flow for all selected entries.",
+      "businessGoal": "As a court user, I need to confirm all entries are correct before committing the batch print.",
+      "preCondition": "Print preview for multiple entries is open with all data valid.",
+      "scenario": {
+        "given": "I am on the print confirmation screen showing all selected entries",
+        "when": "I review the entry summary",
+        "and": [
+          "All entries display with correct data",
+          "I select Confirm Print"
+        ],
+        "then": [
+          "All entries print successfully",
+          "A completion message confirms count of entries printed",
+          "Return to Application List clears selections and displays fresh list"
+        ]
+      }
+    },
+    {
+      "id": "UAT 18b",
+      "title": "Print Continuation Select All — Negative Path (Post-Validation Failure)",
+      "summary": "Confirm the system handles validation failures detected during print continuation for batch operations.",
+      "businessGoal": "As a court user, I need to be informed if an entry becomes invalid between preview and print so I can take corrective action.",
+      "preCondition": "Print preview is displayed; before confirmation, one or more entries is modified externally or data integrity issue is detected.",
+      "scenario": {
+        "given": "I am on the print confirmation screen for multiple entries",
+        "when": "I attempt to Confirm Print",
+        "and": [
+          "The system re-validates entries before committing",
+          "One or more entries fail validation (data modified, fee recalculated, etc.)"
+        ],
+        "then": [
+          "Print is prevented",
+          "An error message identifies which entries failed and why",
+          "User is offered options: (a) Print only valid entries, (b) Cancel and fix, (c) Return to edit affected entries",
+          "Upon selection, action is taken accordingly"
+        ]
+      }
+    },
+    {
+      "id": "UAT 19",
       "title": "Move Applications",
       "summary": "Confirm a user can move one or more Application List Entries to another Application List.",
       "businessGoal": "As a court user, I need to move one or more Application List Entries to another list so that workload can be managed flexibly.",
@@ -374,7 +612,7 @@
       }
     },
     {
-      "id": "UAT 19",
+      "id": "UAT 20",
       "title": "Bulk Update Fee Details",
       "summary": "Confirm a user can update fee details for multiple selected Application List Entries.",
       "businessGoal": "As a court user, I need to update fee details for multiple applications so that payment status can be managed efficiently.",
@@ -395,7 +633,7 @@
       }
     },
     {
-      "id": "UAT 20",
+      "id": "UAT 21",
       "title": "Remove a Result",
       "summary": "Confirm a user can remove an incorrect result from an Application List Entry.",
       "businessGoal": "As a court user, I need to remove an incorrect result so that the application outcome is accurate.",
@@ -415,7 +653,7 @@
       }
     },
     {
-      "id": "UAT 21",
+      "id": "UAT 22",
       "title": "Result Selected with Select All",
       "summary": "Confirm Select All represents all matching applications when applying result actions across a result set.",
       "businessGoal": "As a court user, I need Select All to represent all matching applications so that I understand the scope of the result action.",
