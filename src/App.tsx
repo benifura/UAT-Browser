@@ -381,14 +381,16 @@ function App() {
           <div className="save-status" aria-live="polite">
             Last saved: {formatSavedTime(progress.lastSaved)}
           </div>
-          <div className="toolbar__actions">
-            <button type="button" className="button button--secondary" onClick={() => setIsClearModalOpen(true)}>
-              Clear progress
-            </button>
-            <button type="button" className="button" disabled={!allScenariosComplete} onClick={openReviewPage}>
-              Export PDF
-            </button>
-          </div>
+          {!isReviewOpen ? (
+            <div className="toolbar__actions">
+              <button type="button" className="button button--secondary" onClick={() => setIsClearModalOpen(true)}>
+                Clear progress
+              </button>
+              <button type="button" className="button" disabled={!allScenariosComplete} onClick={openReviewPage}>
+                Export PDF
+              </button>
+            </div>
+          ) : null}
         </section>
 
         {isReviewOpen ? (
