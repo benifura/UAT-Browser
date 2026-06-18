@@ -12,6 +12,7 @@ import type {
 const scenarioPack = scenarioPackData as ScenarioPack;
 const STORAGE_KEY = 'uat-app-progress';
 const RESULT_STATUSES: ScenarioResultStatus[] = ['Pass', 'Fail', 'Partially Passed'];
+const APPREG_COMMENTS_LABEL = 'Please enter any other comments you have about the Modernised AppReg';
 
 const emptyProgress: SavedProgress = {
   currentScenarioIndex: null,
@@ -73,8 +74,12 @@ function hasRequiredComment(result: ScenarioProgress): boolean {
   return result.comments.trim().length > 0;
 }
 
-function getNavigationStatus(result: ScenarioProgress): NavigationStatus {
-  if (!result.status && !hasRequiredComment(result) && !result.otherComments.trim()) {
+function isFinalScenario(scenario: Scenario): boolean {
+  return scenarioPack.scenarios[scenarioPack.scenarios.length - 1]?.id === scenario.id;
+}
+
+function getNavigationStatus(result: ScenarioProgress, includeOtherComments = false): NavigationStatus {
+  if (!result.status && !hasRequiredComment(result) && (!includeOtherComments || !result.otherComments.trim())) {
     return 'Not started';
   }
 
@@ -90,7 +95,7 @@ function getNavigationStatus(result: ScenarioProgress): NavigationStatus {
 }
 
 function isScenarioComplete(progress: SavedProgress, scenario: Scenario): boolean {
-  return getNavigationStatus(getScenarioProgress(progress, scenario.id)) === 'Completed';
+  return getNavigationStatus(getScenarioProgress(progress, scenario.id), isFinalScenario(scenario)) === 'Completed';
 }
 
 function formatSavedTime(isoValue: string | null): string {
@@ -339,8 +344,8 @@ function App() {
         addWrappedText('Comments: ' + result.comments.trim());
       }
 
-      if (result.otherComments.trim()) {
-        addWrappedText('Any other comments: ' + result.otherComments.trim());
+      if (isFinalScenario(scenario) && result.otherComments.trim()) {
+        addWrappedText(APPREG_COMMENTS_LABEL + ': ' + result.otherComments.trim());
       }
 
       yPosition += 4;
@@ -399,7 +404,10 @@ function App() {
               <h2 id="scenario-list-heading">Scenarios</h2>
               <div className="scenario-list__items">
                 {scenarioPack.scenarios.map((scenario, index) => {
-                  const navigationStatus = getNavigationStatus(getScenarioProgress(progress, scenario.id));
+                  const navigationStatus = getNavigationStatus(
+                    getScenarioProgress(progress, scenario.id),
+                    isFinalScenario(scenario)
+                  );
                   const isSelected = selectedScenarioIndex === index;
                   const isAvailable = canSelectScenario(index);
                   const cardClassName =
@@ -518,17 +526,19 @@ function App() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor={'other-comments-' + selectedScenario.id}>Any other comments</label>
-                  <textarea
-                    id={'other-comments-' + selectedScenario.id}
-                    rows={4}
-                    value={selectedResult.otherComments}
-                    onChange={(event) =>
-                      updateScenarioResult(selectedScenario.id, { otherComments: event.target.value })
-                    }
-                  />
-                </div>
+                {isFinalScenario(selectedScenario) ? (
+                  <div className="form-group">
+                    <label htmlFor={'other-comments-' + selectedScenario.id}>{APPREG_COMMENTS_LABEL}</label>
+                    <textarea
+                      id={'other-comments-' + selectedScenario.id}
+                      rows={4}
+                      value={selectedResult.otherComments}
+                      onChange={(event) =>
+                        updateScenarioResult(selectedScenario.id, { otherComments: event.target.value })
+                      }
+                    />
+                  </div>
+                ) : null}
 
                 <div className="scenario-actions">
                   <button
@@ -664,9 +674,9 @@ function CheckAnswersPage({ progress, onBack, onChangeAnswer, onContinue }: Chec
                     <strong>Comments:</strong> {result.comments.trim()}
                   </p>
                 ) : null}
-                {result.otherComments.trim() ? (
+                {isFinalScenario(scenario) && result.otherComments.trim() ? (
                   <p>
-                    <strong>Any other comments:</strong> {result.otherComments.trim()}
+                    <strong>{APPREG_COMMENTS_LABEL}:</strong> {result.otherComments.trim()}
                   </p>
                 ) : null}
               </div>

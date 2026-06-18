@@ -207,14 +207,19 @@ li {
 
 .scenario-list {
   position: sticky;
-  top: 0;
+  top: 24px;
   align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding-right: 8px;
+  scroll-padding: 24px;
   background: #f3f2f1;
 }
 
 .scenario-list__items {
   display: grid;
   gap: 14px;
+  padding-bottom: 16px;
 }
 
 .scenario-card {
@@ -464,6 +469,9 @@ textarea {
 
   .scenario-list {
     position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
   }
 }
 
