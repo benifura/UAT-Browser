@@ -145,7 +145,7 @@
       "title": "Bulk Upload CSV",
       "summary": "Confirm a user can upload a valid CSV file to create multiple Application List Entries.",
       "businessGoal": "As a court user, I need to upload a CSV of applications so that multiple Application List Entries can be created efficiently.",
-      "preCondition": "An Open Application List exists.",
+      "preCondition": "An Open Application List exists & the Application Code does not require a fee.",
       "scenario": {
         "given": "I have opened an Application List",
         "when": "I select Bulk Upload",
@@ -246,7 +246,7 @@
       "title": "Update Notes",
       "summary": "Confirm a user can update notes and references for an existing Application List Entry.",
       "businessGoal": "As a court user, I need to update notes and references so that application context remains accurate.",
-      "preCondition": "An existing Application List Entry is open in update mode.",
+      "preCondition": "An existing Application List Entry is open and must be in update mode.",
       "scenario": {
         "given": "I am on an Application List Entry in update mode",
         "when": "I amend Application Notes, Case Reference or Account Reference",
@@ -261,7 +261,7 @@
         ]
       }
     },
-     {
+    {
       "id": "UAT 11a",
       "title": "Bulk Update Notes",
       "summary": "Confirm a user can update notes and references for multiple selected Application List Entries in one action.",
