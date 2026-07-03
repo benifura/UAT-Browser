@@ -141,51 +141,7 @@
       }
     },
     {
-      "id": "UAT 5a",
-      "title": "Invalid CSV Upload — Missing Required Fields",
-      "summary": "Confirm the system rejects CSV uploads where required columns or data are missing.",
-      "businessGoal": "As a court user, I need to know which required fields are missing so that I can correct the CSV before re-uploading.",
-      "preCondition": "An Open Application List exists.",
-      "scenario": {
-        "given": "I have opened an Application List",
-        "when": "I select Bulk Upload",
-        "and": [
-          "I select a CSV file with missing required columns (e.g., missing Applicant First Forename, Surname, or Address Line 1)",
-          "I select Upload File"
-        ],
-        "then": [
-          "The upload is rejected after file validation",
-          "An error message lists the missing required columns",
-          "Error details include row numbers where data is missing or incomplete",
-          "No entries are created",
-          "User is guided to update the CSV and resubmit"
-        ]
-      }
-    },
-    {
-      "id": "UAT 5b",
-      "title": "Invalid CSV Upload — Incorrect File Format",
-      "summary": "Confirm the system rejects CSV files with incorrect format and displays an appropriate error message.",
-      "businessGoal": "As a court user, I need clear feedback when an invalid file format is uploaded so that I can provide the correct file.",
-      "preCondition": "An Open Application List exists.",
-      "scenario": {
-        "given": "I have opened an Application List",
-        "when": "I select Bulk Upload",
-        "and": [
-          "I select an invalid file format (e.g., .xlsx, .txt, .pdf instead of .csv)",
-          "I select Upload File"
-        ],
-        "then": [
-          "The upload is rejected",
-          "An error message is displayed: 'Invalid file format. Please upload a CSV file.'",
-          "The upload does not proceed",
-          "The file input is cleared and ready for a new attempt",
-          "User can select a different file and retry"
-        ]
-      }
-    },
-    {
-      "id": "UAT 5c",
+      "id": "UAT 5",
       "title": "Bulk Upload CSV",
       "summary": "Confirm a user can upload a valid CSV file to create multiple Application List Entries.",
       "businessGoal": "As a court user, I need to upload a CSV of applications so that multiple Application List Entries can be created efficiently.",
