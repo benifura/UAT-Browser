@@ -145,7 +145,7 @@
       "title": "Bulk Upload CSV",
       "summary": "Confirm a user can upload a valid CSV file to create multiple Application List Entries.",
       "businessGoal": "As a court user, I need to upload a CSV of applications so that multiple Application List Entries can be created efficiently.",
-      "preCondition": "An Open Application List exists & the Application Code does not require a fee.",
+      "preCondition": "An Open Application List exists.",
       "scenario": {
         "given": "I have opened an Application List",
         "when": "I select Bulk Upload",
@@ -262,29 +262,7 @@
       }
     },
     {
-      "id": "UAT 11a",
-      "title": "Bulk Update Notes",
-      "summary": "Confirm a user can update notes and references for multiple selected Application List Entries in one action.",
-      "businessGoal": "As a court user, I need to bulk update notes for multiple applications so that application context and references can be managed efficiently.",
-      "preCondition": "Multiple Application List Entries are selected.",
-      "scenario": {
-        "given": "I have selected multiple Application List Entries",
-        "when": "I select Bulk Update Notes",
-        "and": [
-          "I update Application Notes, Case Reference and/or Account Reference",
-          "I save the bulk update"
-        ],
-        "then": [
-          "The notes are updated for all selected entries",
-          "A success banner displays the count of updated entries",
-          "Cleared values are removed where expected across all entries",
-          "The updated values appear in the Notes accordion of each entry",
-          "Return to Applications clears selections"
-        ]
-      }
-    },
-    {
-      "id": "UAT 11b",
+      "id": "UAT 11",
       "title": "Bulk Update Officials",
       "summary": "Confirm a user can update Magistrates and Court Official details for multiple selected Application List Entries in one action.",
       "businessGoal": "As a court user, I need to bulk update officials for multiple applications so that officer and magistrate assignments can be managed efficiently.",
