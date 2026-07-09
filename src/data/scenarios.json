@@ -29,7 +29,7 @@
       "preCondition": "An Open Application List exists; application code selected requires respondent + fee.",
       "scenario": {
         "given": "I am creating a new Application List Entry",
-        "when": "I select Person in the Applicant accordion",
+        "when": "I select Person in the Applicant type dropdown field",
         "and": [
           "I populate mandatory applicant fields: First Forename, Surname, Address Line 1",
           "I populate mandatory Respondent fields (Person or Organisation)",
@@ -40,8 +40,7 @@
         "then": [
           "The Application List Entry is created successfully",
           "The applicant and respondent are saved",
-          "The Summary displays both applicant and respondent details",
-          "Both Applicant and Respondent accordions display saved details"
+          "The Summary displays both applicant and respondent details"
         ]
       }
     },
@@ -53,7 +52,7 @@
       "preCondition": "An Open Application List exists; application code selected has respondent as optional.",
       "scenario": {
         "given": "I am creating a new Application List Entry",
-        "when": "I select Person in the Applicant accordion and choose an app code with optional respondent",
+        "when": "I select Person in the Applicant type dropdown field and choose an app code with optional respondent",
         "and": [
           "I populate mandatory applicant fields: First Forename, Surname, Address Line 1",
           "I skip Respondent section (optional)",
@@ -78,7 +77,7 @@
         "given": "I have opened an Open Application List",
         "when": "I select Create Application",
         "and": [
-          "I choose Organisation in the Applicant accordion",
+          "I choose Organisation in the Applicant type dropdown field",
           "I enter Organisation Name and Address Line 1",
           "I populate mandatory Respondent fields",
           "I complete mandatory Application Code, Wording, and Civil Fee information",
@@ -89,7 +88,7 @@
           "The Application List Entry is created successfully",
           "Both applicant and respondent are saved as organisations",
           "A success banner is displayed",
-          "The newly created entry displays both applicant and respondent in Summary and accordions"
+          "The newly created entry displays both applicant and respondent in Summary"
         ]
       }
     },
@@ -103,7 +102,7 @@
         "given": "I have opened an Open Application List",
         "when": "I select Create Application and choose an app code with optional respondent",
         "and": [
-          "I choose Organisation in the Applicant accordion",
+          "I choose Organisation in the Applicant type dropdown field",
           "I enter Organisation Name and Address Line 1",
           "I skip Respondent section (optional)",
           "I complete Application Code and Wording information",
@@ -125,7 +124,7 @@
       "preCondition": "Standard Applicants exist and are available through lookup.",
       "scenario": {
         "given": "I am creating a new Application List Entry",
-        "when": "I select Standard Applicant in the Applicant accordion",
+        "when": "I select Standard Applicant in the Applicant type dropdown field",
         "and": [
           "I search for and select a valid Standard Applicant",
           "I complete the mandatory Application Code and Wording information",
@@ -169,7 +168,7 @@
       "businessGoal": "As a court user, I need to update applicant details so that data regarding the individual or organisation remains accurate.",
       "preCondition": "An existing Application List Entry is open in update mode.",
       "scenario": {
-        "given": "I expand the Applicant accordion",
+        "given": "I expand the Applicant section",
         "when": "I change the applicant type or update applicant fields",
         "and": [
           "I select Update Applicant"
@@ -188,7 +187,7 @@
       "businessGoal": "As a court user, I need to update wording for an existing Application List Entry so that the application details remain correct.",
       "preCondition": "An existing Application List Entry has an Application Code and wording.",
       "scenario": {
-        "given": "I expand the Wording accordion",
+        "given": "I expand the Wording section",
         "when": "I update one or more wording fields",
         "and": [
           "I select Save changes"
@@ -196,7 +195,7 @@
         "then": [
           "The wording is saved successfully",
           "The Summary reflects the updated wording",
-          "The accordion stays open if validation errors occur",
+          "The section stays open if validation errors occur",
           "Server validation errors map to the correct fields"
         ]
       }
@@ -208,7 +207,7 @@
       "businessGoal": "As a court user, I need to update respondent details so that the Application List Entry reflects the correct responding party.",
       "preCondition": "An existing Application List Entry is open in update mode.",
       "scenario": {
-        "given": "I expand the Respondent accordion",
+        "given": "I expand the Respondent section",
         "when": "I update the Person or Organisation respondent details",
         "and": [
           "I select Save changes"
@@ -228,14 +227,14 @@
       "businessGoal": "As a court user, I need to update fee details so that payment information remains accurate.",
       "preCondition": "An existing Application List Entry has Civil Fee data or a fee due Application Code.",
       "scenario": {
-        "given": "I expand the Civil Fee accordion",
+        "given": "I expand the Civil Fee section",
         "when": "I update Fee Status, Status Date, Payment Reference, Value or Off Site Fee",
         "and": [
           "I select Save changes"
         ],
         "then": [
           "The fee details are updated successfully",
-          "The updated fee details display in the Civil Fee accordion",
+          "The updated fee details display in the Civil Fee section",
           "The Summary reflects the latest fee status",
           "A success banner is displayed"
         ]
@@ -256,7 +255,7 @@
         "then": [
           "The changes are saved successfully",
           "Cleared values are removed where expected",
-          "The updated values appear in the Notes accordion",
+          "The updated values appear in the Notes section",
           "A success banner is displayed"
         ]
       }
@@ -291,7 +290,7 @@
       "preCondition": "An existing Application List Entry is open in update mode.",
       "scenario": {
         "given": "I am on an Application List Entry in update mode",
-        "when": "I expand the Result Wording accordion",
+        "when": "I expand the Result Wording section",
         "and": [
           "I search for a valid Result Code",
           "I select and add the result",
@@ -313,7 +312,7 @@
       "businessGoal": "As a court user, I need to record Magistrates and Court Official details so that applications can be audited and printed correctly.",
       "preCondition": "User is creating an Application List Entry.",
       "scenario": {
-        "given": "I open the Officials accordion",
+        "given": "I open the Officials section",
         "when": "I enter up to three Magistrates and one Court Official",
         "and": [
           "At least one surname is provided",
@@ -573,7 +572,7 @@
       "businessGoal": "As a court user, I need to remove an incorrect result so that the application outcome is accurate.",
       "preCondition": "An Application List Entry has at least one result recorded.",
       "scenario": {
-        "given": "I expand the Result Wording accordion",
+        "given": "I expand the Result Wording section",
         "when": "I remove an existing result",
         "and": [
           "I confirm the action"
